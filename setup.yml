@@ -1,0 +1,34 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: |
+  [Experimental] setup SSM for on-premises managed instances
+
+Outputs:
+  SSMServiceRoleArn:
+    Value: !GetAtt SSMServiceRole.Arn
+  SSMServiceRoleName:
+    Value: !Ref SSMServiceRole
+  SSMServiceRoleRoleId:
+    Value: !GetAtt SSMServiceRole.RoleId
+
+Resources:
+  SSMServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          -
+            Action: sts:AssumeRole
+            Effect: Allow
+            Principal: {Service: ssm.amazonaws.com}
+      Description: Service role for SSM
+      ManagedPolicyArns:
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/AmazonSSMManagedInstanceCore
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/AmazonSSMDirectoryServiceAccess
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/CloudWatchAgentServerPolicy
+      Path: /experimental/
+      # TODO Get rid of the explicit naming
+      RoleName: SSMServiceRole
+
+# vim:expandtab:ft=cloudformation.yaml:sts=2:sw=2:ts=2
